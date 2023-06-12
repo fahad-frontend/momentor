@@ -12,15 +12,20 @@ import Head from "next/head"
 import { useRouter } from 'next/router'
 
 export default function Home() {
-  const {asPath} = useRouter()
-  const isBrowser = () => typeof window !== 'undefined';
+  const {asPath} = useRouter() // Get path for canonical tag and open graph tags
+  const isBrowser = () => typeof window !== 'undefined'; // Check if client side to initialize AOS library
+  
+  // States and refs
   const formRef = useRef(null);
+  const timeoutRef = useRef(null);
   const [formSubmitted, setFormSubmitted] = useState(null)
   const [index, setIndex] = useState(0)
-  const executeScroll = () => formRef.current.scrollIntoView() 
-  const delay = 5000;
-  const timeoutRef = useRef(null);
 
+  const delay = 5000; // Time in miliseconds to wait on each slide for slideshow
+
+  const executeScroll = () => formRef.current.scrollIntoView() // Function to scroll down on Learn More button click
+
+  // Testimonials for slideshow
   const testimonials = [
     {
       image: "https://static.wixstatic.com/media/11062b_cbc9128d84c942c78aa4eecc3f810e97~mv2.jpg/v1/fill/w_632,h_976,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/11062b_cbc9128d84c942c78aa4eecc3f810e97~mv2.jpg",
@@ -39,6 +44,7 @@ export default function Home() {
     }
   ]
 
+  // Function to clear Timeout
   const resetTimeout = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -46,22 +52,24 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // clear Timeout if active
     resetTimeout();
-    timeoutRef.current = setTimeout(() =>
-        setIndex((prevIndex) =>
-          prevIndex === testimonials?.length-1 ? 0 : prevIndex + 1
-        ),
-      delay
-    );
+
+    // Set timeoutRef and update index value after delay
+    timeoutRef.current = setTimeout(() =>setIndex((prevIndex) => prevIndex === testimonials?.length-1 ? 0 : prevIndex + 1), delay);
+    
+    // clean up function
     return () => {
       resetTimeout();
     };
   }, [index]);
 
+  // Initialize AOS if client side rendered
   if (isBrowser()) {
     AOS.init();
   }
 
+  // Form submission handling
   const submitForm = (e) => {
     e.preventDefault();
     setFormSubmitted(true)
